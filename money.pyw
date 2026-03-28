@@ -87,8 +87,15 @@ class AutoClicker:
             if event.keysym == "space":
                 self.spam_keys.append(" ")
             # We're treating Shift_L and Shift_R as "Shift" so that it works, not in all games though for some reason
+            # Added some more keys, might have to add holding for ctrl
             elif event.keysym == "Shift_L" or event.keysym == "Shift_R":
                 self.spam_keys.append("Shift")
+            elif event.keysym == "Control_L" or event.keysym == "Control_R":
+                self.spam_keys.append("CTRL")
+            elif event.keysym == "Return":
+                self.spam_keys.append("Enter")
+            elif event.keysym == "grave":
+                self.spam_keys.append("`")
             else:
                 if event.keysym not in self.spam_keys:
                     self.spam_keys.append(event.keysym)
