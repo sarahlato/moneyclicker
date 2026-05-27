@@ -80,10 +80,12 @@ class AutoClicker:
 
     def record_spam_keys(self, event):
         if event.keysym == "Escape":
+            self.spam_button.config(state=tk.NORMAL)
             self.spam_display.config(text="+".join(self.spam_keys))
             self.status_label.config(text="Combo recorded")
             self.root.unbind("<KeyPress>")
         else:
+            self.spam_button.config(state=tk.DISABLED)
             if event.keysym == "space":
                 self.spam_keys.append(" ")
             # We're treating Shift_L and Shift_R as "Shift" so that it works, not in all games though for some reason
@@ -97,8 +99,8 @@ class AutoClicker:
             elif event.keysym == "grave":
                 self.spam_keys.append("`")
             else:
-                if event.keysym not in self.spam_keys:
-                    self.spam_keys.append(event.keysym)
+                self.spam_keys.append(event.keysym)
+                
 
     def update_mouse_button(self, *args):
         self.mouse_button = {
