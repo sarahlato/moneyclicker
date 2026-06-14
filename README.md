@@ -17,6 +17,8 @@ It's to keep it simple. Of course, it could have a more organized UI, which I pl
 
 Not much, as I plan to keep it simple, as stated above. I will reorganize the UI to be more intuitive in the future, possibly offer different languages as their own scripts (to prevent bloat), and possibly add a feature that automatically optimizes your clicking rate or calculates CPS to sleep time rate, as it is currently very rudimentiary. The current rate system was chosen to prevent confusion over why the CPS is not what was requested of the program, and offer more precision.
 
+Note: 6/13/2026, there is in fact now a function to calculate CPS/OPS.
+
 ## How do I set up Moneyclicker?
 
 On Windows, install Python, and download the code as .zip, or clone the repo. Then navigate to the folder that you extracted Moneyclicker to, or the folder that you cloned the repo to. Open CMD and type:
