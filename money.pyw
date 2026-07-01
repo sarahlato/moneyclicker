@@ -1,9 +1,13 @@
 import tkinter as tk
 from tkinter import ttk
 from pynput import mouse, keyboard
+from tkinter import filedialog
 import threading
 import time
+import os
 timeElapsed = 0
+scrstepsy = 2
+scrstepsx = 0
 class AutoClicker:
     def __init__(self, root):
         self.root = root
@@ -16,6 +20,7 @@ class AutoClicker:
         self.clicking = False
         self.spam_keys = []
         self.spamming = False
+        self.scrolling = False
         self.mouse_button = mouse.Button.left
 
         #cleaned up UI buttons/grids
@@ -48,11 +53,13 @@ class AutoClicker:
         self.spam_display = ttk.Label(root, text="None")
         self.spam_display.grid(row=2, column=2, sticky="w", padx=(4,0))
         self.spam_button = ttk.Button(root, text="Record KB inputs", command=self.set_spam_keys)
+        self.test_button = ttk.Button(root, text="$TEST$", command=self.select_file)
         self.calc_button = ttk.Button(root, text="Calculate Rate", command=self.how_long_will_it_take)
         self.calc_button.grid(row=8, column=0, padx=(300,0))
         self.spam_button.grid(row=0, column=2)
+#        self.test_button.grid(row=10, column=2)
 
-        self.mouse_label = ttk.Label(root, text="Mouse Button:")
+        self.mouse_label = ttk.Label(root, text="Mouse:")
         self.mouse_label.grid(row=5, column=0, sticky="w")
         self.mouse_var = tk.StringVar(value="left")
         self.left_radio = ttk.Radiobutton(root, text="Left", variable=self.mouse_var, value="left")
@@ -61,6 +68,8 @@ class AutoClicker:
         self.right_radio.grid(row=5, column=2, sticky="w")
         self.middle_radio = ttk.Radiobutton(root, text="Middle", variable=self.mouse_var, value="middle")
         self.middle_radio.grid(row=6, column=1, sticky="w")
+        self.scroll_radio = ttk.Radiobutton(root, text="Scroll", variable=self.mode, value="scroll")
+#        self.scroll_radio.grid(row=6, column=2, sticky="w")
         self.mouse_var.trace("w", self.update_mouse_button)
 
         self.status_label = ttk.Label(root, text="The function is currently: Off")
@@ -116,7 +125,7 @@ class AutoClicker:
             "left": mouse.Button.left,
             "right": mouse.Button.right,
             "middle": mouse.Button.middle
-        }.get(self.mouse_var.get(), mouse.Button.left)
+        }.get(self.mouse_var.get(), None)
         
     def how_long_will_it_take(self):
         if self.mode.get() == "click":
@@ -126,9 +135,11 @@ class AutoClicker:
                 timeElapsed = self.hold_rate + self.click_rate * len(self.spam_keys)
             else:
                 timeElapsed = 0.01
+        if self.mode.get() == "scroll":
+            timeElapsed = self.click_rate
         if timeElapsed <= 0:
             timeElapsed += 0.001
-        timeElapsedHz = (int(1 / timeElapsed))
+        timeElapsedHz = (round(1 / timeElapsed))
         if timeElapsedHz == 0:
             self.elapsed_calc.config(text="Less than 1 per second")
         else:
@@ -177,6 +188,26 @@ class AutoClicker:
                     print(f"Failed to press {key_name}: {e}")
             time.sleep(self.click_rate)
 
+    def scroll_function(self):
+        controller = mouse.Controller()
+        while self.scrolling:
+            controller.scroll(scrstepsx, scrstepsy)
+            time.sleep(self.click_rate)
+            #print("its working")
+            #maybe the control itself is wrong? the print and event is triggered easily
+            #no scroll, acts as tab
+
+    def select_file(self, event=None):
+
+        filetypes=[("MCAB Files", "*.mcab"), ("All Files", "*.*")]
+
+
+        filename = filedialog.askopenfilename(
+            title='Open a file',
+            initialdir='/',
+            filetypes=filetypes)
+
+
     def toggle(self):
         #Block originally for error handling, was kinda fucked up, now just tells if it's a "safe" method or not, not helpful at all
         if self.mode.get() == "click":
@@ -195,10 +226,18 @@ class AutoClicker:
                 self.action_thread.start()
             else:
                 self.status_label.config(text="The function is currently: Off")
+        if self.mode.get() == "scroll":
+            self.scrolling = not self.scrolling
+            if self.scrolling:
+                self.action_thread = threading.Thread(target=self.scroll_function)
+                self.action_thread.start()
+            else:
+                return
 
     def on_close(self):
         self.clicking = False
         self.spamming = False
+        self.scrolling = False 
         if self.listener:
             self.listener.stop()
         self.root.destroy()
